@@ -24,10 +24,47 @@ var Engine = (function(global) {
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
-
-    canvas.width = 505;
+        gamestop = false;
+        gamewon = false;
+        gamereset = false;
+        xvalue=0;
+     
+    // canvas.width = 505;
+    // canvas.height = 606;
+     canvas.width = 1005;
     canvas.height = 606;
+    ctx.font = "45px Arial";
+    ctx.fillText("FROGGER GAME", 250 , 35);
+    ctx.fillStyle = "#000099";
+    
+
     doc.body.appendChild(canvas);
+
+var GameOver=function(){
+        
+        ctx.fillStyle = "blue";
+        ctx.fillRect(0, 40, 900, 530);
+        ctx.fill();
+         
+        // ctx.strokeStyle="red";
+        // ctx.strokeRect(0, 40, 900, 530);
+        // ctx.stroke();
+        ctx.fillStyle = "red";
+        ctx.strokeStyle="black";
+        ctx.font = "80px Arial";
+        ctx.fillText("GAME OVER ", 200 , 200); 
+        ctx.fillText("You Won "+ xvalue + " Gems", 100 , 400); 
+            
+        ctx.stroke();
+        
+        ctx.fill();
+        //ctx.font = "25px Arial";
+        //ctx.fillText("Press spacebar to Restart", 200 , 600);
+       // ctx.fillStyle = "#000099";
+                             
+        }
+
+
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -45,8 +82,10 @@ var Engine = (function(global) {
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
          */
+         
         update(dt);
         render();
+
 
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
@@ -56,18 +95,31 @@ var Engine = (function(global) {
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
-        win.requestAnimationFrame(main);
+        if(!gamestop && !gamewon)
+            win.requestAnimationFrame(main);
+        else 
+            GameOver();
+        
+              
     };
 
     /* This function does some initial setup that should only occur once,
      * particularly setting the lastTime variable that is required for the
      * game loop.
      */
+    
+
     function init() {
         reset();
         lastTime = Date.now();
-        main();
-    }
+        main();   
+       
+        setInterval(function(){
+            gemindex = Math.floor(Math.random()*3); 
+            gem = new Gem(allGems[gemindex]);
+            gem.update();}, 4000);        
+       
+        }
 
     /* This function is called by main (our game loop) and itself calls all
      * of the functions which may need to update entity's data. Based on how
@@ -79,10 +131,11 @@ var Engine = (function(global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
+        
         updateEntities(dt);
-        // checkCollisions();
+       // checkCollisions();
+       
     }
-
     /* This is called by the update function  and loops through all of the
      * objects within your allEnemies array as defined in app.js and calls
      * their update() methods. It will then call the update function for your
@@ -95,8 +148,9 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
-    }
 
+    }
+    
     /* This function initially draws the "game level", it will then call
      * the renderEntities function. Remember, this function is called every
      * game tick (or loop of the game engine) because that's how games work -
@@ -107,18 +161,18 @@ var Engine = (function(global) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
+         
         var rowImages = [
                 'images/water-block.png',   // Top row is water
                 'images/stone-block.png',   // Row 1 of 3 of stone
                 'images/stone-block.png',   // Row 2 of 3 of stone
                 'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/grass-block.png'    // Row 1 of 2 of grass
             ],
-            numRows = 6,
-            numCols = 5,
+            numRows = 5,
+            numCols = 8,
             row, col;
-
+//'images/grass-block.png',   // Row 1 of 2 of grass
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
          * portion of the "grid"
@@ -153,6 +207,9 @@ var Engine = (function(global) {
         });
 
         player.render();
+        player.playerLife();
+        gem.render();
+
     }
 
     /* This function does nothing but it could have been a good place to
@@ -160,6 +217,9 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
+       // console.log("Game Reset");
+       // gamestop = false;
+       // win.requestAnimationFrame(main);
         // noop
     }
 
@@ -171,8 +231,13 @@ var Engine = (function(global) {
         'images/stone-block.png',
         'images/water-block.png',
         'images/grass-block.png',
-        'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/enemy-bug1.png',
+        'images/char-boy1.png',
+        'images/Gem Blue1.png',
+        'images/Gem Green1.png',
+        'images/Gem Orange1.png',
+        'images/Heart1.png',
+        'images/Star2.png'
     ]);
     Resources.onReady(init);
 
